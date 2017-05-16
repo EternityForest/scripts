@@ -17,8 +17,8 @@ is definitely not a substiture for regular backups of important data.
 
 
 ## How to use
-To use it, copy the whole readonly_helper folder over, enter it, as root run the readonly_helper.sh file, 
-and as your normal user run user_readonly_helper.sh
+To use it, copy the whole readonly_helper folder over, enter it, as root run the readonlyhelper.sh file, 
+and as your normal user run user-readonlyhelper.sh
 
 You might want to read the code first though, it's not that long and you might not want all of it.
 
