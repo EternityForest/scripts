@@ -1,3 +1,8 @@
+# NOTICE
+
+This seems to break the latest raspbian.... Working on it!!!!
+
+
 # Readonly Helper
 
 This is meant to reduce the SD card and disk writes that linux just does in the background
