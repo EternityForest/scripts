@@ -263,7 +263,11 @@ apt-get -y --force-yes autoremove --purge
 echo "Installing ntp"
 
 #Install NTP because timesyncd sucks
+#However, don't override a user's choice of
+#the arguably better but less common chrony.
+if [ $(dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
 apt-get -y --force-yes install ntp;
+fi
 
 echo "Configuring system..."
 
