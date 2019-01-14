@@ -1,3 +1,5 @@
+#!/bin/sh
+
 #This script installs the stuff I think every distro should have.
 #I don't expect anyone to agree with me....
 

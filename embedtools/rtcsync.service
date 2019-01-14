@@ -1,0 +1,6 @@
+[Unit]
+Description= Writes sys time to RTC, if we are currently synced
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/rtcsync.sh

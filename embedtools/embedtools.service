@@ -1,5 +1,5 @@
 [Unit]
-Description=make systemd random seeding work without writing anything to disk by generating entropy at boot.
+Description=make systemd random seeding work, and whatever else needs to happen at boot for RO systems.
 After=systemd-remount-fs.service
 Before=sysinit.target
 RequiresMountsFor=/etc/
@@ -7,7 +7,7 @@ DefaultDependencies=no
 
 [Service]
 Type=oneshot
-ExecStart=/usr/lib/readonly-random-seed
+ExecStart=/usr/bin/embedtools_service.sh
 
 [Install]
 WantedBy=sysinit.target
