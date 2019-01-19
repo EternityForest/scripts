@@ -50,7 +50,7 @@ they will probably break something.
 * Disables timesyncd's hourly writing of the current time(and fake-hwclock too)
   Note: without a RTC, you will have times that appear to go backwards until
   NTP syncs.
-  
+
 * Disables dphys-swapfile if present which disables swap completey on raspbian
 * Stops the system from saving any entropy on boot. 
   That's kinda important, so we have to generate entropy at boot(currently 32 bytes) which
@@ -70,3 +70,9 @@ they will probably break something.
 ## What user_readonly_helper.sh does
 
 * Symlinks .bash_history and .python_history to /dev/null 
+
+## Potential bugs
+
+These scripts get rid of fake-hwclock and try to set the sys time from the RTC no matter what. You could get some real wonky timestamps for the first 30s before NTP syncs.
+
+Also, most of the permutations of this haven't been tested.
