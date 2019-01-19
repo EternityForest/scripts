@@ -266,8 +266,11 @@ echo "Installing ntp"
 #However, don't override a user's choice of
 #the arguably better but less common chrony.
 if [ $(dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
-apt-get -y --force-yes install ntp;
+apt-get -y --force-yes install ntp ntpstat;
 fi
+
+#Copy over the modified hwclock-set.sh
+cp hwclock-set.sh /lib/udev/hwclock-set
 
 echo "Configuring system..."
 

@@ -37,7 +37,9 @@ All you have to do is add a line like:
 
 `dtoverlay=i2c-rtc,ds3231`
 
-to /boot/config.txt.
+to /boot/config.txt. You may also need to enable i2c, with the config tool,
+or by uncommenting `dtaparam=i2c_arm=on`.
+
 
 Don't bother with any of the oter steps in the usual tutorials,
 they will probably break something.
@@ -46,6 +48,9 @@ they will probably break something.
 ## What it Does
 
 * Disables timesyncd's hourly writing of the current time(and fake-hwclock too)
+  Note: without a RTC, you will have times that appear to go backwards until
+  NTP syncs.
+  
 * Disables dphys-swapfile if present which disables swap completey on raspbian
 * Stops the system from saving any entropy on boot. 
   That's kinda important, so we have to generate entropy at boot(currently 32 bytes) which

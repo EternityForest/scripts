@@ -8,17 +8,17 @@
 dev=$1
 
 
-#If user sey up an i2c RTC, we comment out the lines as per
+#We comment out the lines as per
 #Many internet tutorials that have more info on why.
 
+#We do this no matter what, since we get rid of systemd's time sync stuff
+#Anyway in embedtools and replace it with ntp and custom scripts
 #Otherwise, we just exit like usual on systemd
-if grep -q "i2c-rtc" /boot/config.txt; then
-else
 
-    if [ -e /run/systemd/system ] ; then
-        exit 0
-    fi
-fi
+# if [ -e /run/systemd/system ] ; then
+#     exit 0
+# fi
+
 
 if [ -e /run/udev/hwclock-set ]; then
     exit 0
@@ -39,7 +39,7 @@ fi
 
 
 #We do our own system time to RTC stuff.
-#Because I'd rather not set the RTC at all
+#Because I'd rather not set the RTC at all without first checking
 if [ yes = "$BADYEAR" ] ; then
     /bin/rtcsync.sh
     /sbin/hwclock --rtc=$dev --hctosys --badyear

@@ -7,6 +7,11 @@
 if grep -q "i2c-rtc" /boot/config.txt; then
     #Try detecting Chrony
     if command -v chronyc; then
+
+        #Wait a bit. We run this at boot, so
+        #We want to know sync as soon as possible, not just
+        #poll every ten minutes
+        chronyc waitsync 60 0.05
         if chronyc sources | grep -q "\^\*"; then
         #Using a temp file for that var run,
         #This will sadly mess with subsecond precision
@@ -24,8 +29,11 @@ if grep -q "i2c-rtc" /boot/config.txt; then
     #Now try the same thing, but with NTP
     if [[ ! -x /usr/bin/ntpstat ]]
     then
-    exit 3
+    exit 0
     fi
+
+    #If we're using NTP
+    ntp-wait
 
     res=$(/usr/bin/ntpstat)
     rc=$?
