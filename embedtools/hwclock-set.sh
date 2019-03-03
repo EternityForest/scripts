@@ -39,13 +39,16 @@ fi
 
 
 #We do our own system time to RTC stuff.
-#Because I'd rather not set the RTC at all without first checking
+#Because I'd rather not set the RTC at all without first checking.
+
+#I've commented out the systz lines as seems to be the preference of a lot 
+#Of internet tutorials. Is this actually the best choice in the general case?
 if [ yes = "$BADYEAR" ] ; then
     /bin/rtcsync.sh
-    /sbin/hwclock --rtc=$dev --hctosys --badyear
+    /sbin/hwclock --rtc=$dev --hctosys --badyear --adjfile=/var/run/rtc-adjfile
 else
     /bin/rtcsync.sh
-    /sbin/hwclock --rtc=$dev --hctosys
+    /sbin/hwclock --rtc=$dev --hctosys --adjfile=/var/run/rtc-adjfile
 fi
 
 # Note 'touch' may not be available in initramfs

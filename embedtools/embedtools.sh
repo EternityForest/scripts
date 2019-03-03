@@ -457,11 +457,11 @@ mkdir -p /var/lib/chrony
 append1 /etc/fstab "/var/lib/chrony" "tmpfs /var/lib/ntp tmpfs defaults,noatime,nosuid,nodev,noexec,size=1M 0 0"
 
 #####Enable our replacement systemd RTC clock service
-cp -pf rtcsync.sh /usr/bin/
+cp -pf rtcsync.sh /bin/
 cp -pf rtcsync.service /etc/systemd/system
 cp -pf rtcsync.timer /etc/systemd/system
 
-chmod 744 /usr/bin/rtcsync.sh
+chmod 744 /bin/rtcsync.sh
 chmod 744 /etc/systemd/system/rtcsync.timer
 chmod 744 /etc/systemd/system/rtcsync.service
 

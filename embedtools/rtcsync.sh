@@ -16,7 +16,7 @@ if grep -q "i2c-rtc" /boot/config.txt; then
 
         #I'm just going to assume though, that systems that need better precision
         #have a way of handling this, like staying synced to NTP.
-        /sbin/hwclock --systz --utc --adjfile=/var/run/rtc-adjfile
+        /sbin/hwclock -w --utc --adjfile=/var/run/rtc-adjfile
         fi
     fi
 
@@ -34,7 +34,7 @@ if grep -q "i2c-rtc" /boot/config.txt; then
     case $rc in
     0 )
         #Clocks are synced
-        /sbin/hwclock --systz --utc --adjfile=/var/run/rtc-adjfile
+        /sbin/hwclock -w --utc --adjfile=/var/run/rtc-adjfile
         ;;
     1 )
         ;;
