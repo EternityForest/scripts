@@ -1,46 +1,67 @@
-import os,re,time,subprocess,hashlib,struct
-
+import os,re,time,subprocess,hashlib,struct,threading,atexit
 
 alsa_in_instances={}
 alsa_out_instances ={}
 
 
 
+def startJack():
+    #Start the JACK server.
+    global jackp
+    jackp =subprocess.Popen("jackd --realtime -d dummy -p 64",shell=True)    
+startJack()
 
+
+def cleanup():
+    with lock:
+        try:
+            jackp.kill()
+        except:
+            pass
+        for i in alsa_in_instances:
+            alsa_in_instances[i].kill()
+        for i in alsa_out_instances:
+            alsa_out_instances[i].kill()
+
+atexit.register(cleanup)
+lock=threading.Lock()
 
 def daemon():
     while 1:
         time.sleep(3)
-        ##HANDLE CREATING AND GC-ING things
-        inp,op = listSoundCardsByPersistentName()
+        with lock:
+            ##HANDLE CREATING AND GC-ING things
+            inp,op = listSoundCardsByPersistentName()
+            for i in inp:
+                if inp[i][2]==(0,0):
+                    continue
+                if not i in alsa_in_instances:
+                    print(inp[i][0],i)
+                    x = subprocess.Popen(["alsa_in", "-d", inp[i][0].replace("-",""), "-j",i])
+                    alsa_in_instances[i]=x
+        
+            for i in op:
+                if op[i][2]==(0,0):
+                    continue
+                if not i in alsa_out_instances:
+                    print(["alsa_out", "-d", op[i][0], "-j",i])
+                    x = subprocess.Popen(["alsa_out", "-d", op[i][0].replace("-",""), "-j",i],stderr=subprocess.DEVNULL,stdout=subprocess.DEVNULL)
+                    alsa_out_instances[i]=x
 
-        for i in inp:
-            if inp[i][2]==(0,0):
-                continue
-            if not i in alsa_in_instances:
-                x = subprocess.Popen(["alsa_in", "-d", inp[i][0], "-j",i])
-                alsa_in_instances[i]=x
-        for i in op:
-            if op[i][2]==(0,0):
-                continue
-            if not i in alsa_out_instances:
-                print(["alsa_in", "-d", op[i][0], "-j",i])
-                x = subprocess.Popen(["alsa_in", "-d", op[i][0], "-j",i])
-                alsa_out_instances[i]=x
 
-        tr =[]
-        for i in alsa_out_instances:
-            alsa_out_instances[i].poll()
-            tr.append(i)
-        for i in tr:
-            del alsa_out_instances[i]
+            tr =[]
+            for i in alsa_out_instances:
+                if not alsa_out_instances[i].poll()==None:
+                    tr.append(i)
+            for i in tr:
+                del alsa_out_instances[i]
 
-        tr =[]
-        for i in alsa_in_instances:
-            alsa_in_instances[i].poll()
-            tr.append(i)
-        for i in tr:
-            del alsa_out_instances[i]
+            tr =[]
+            for i in alsa_in_instances:
+                if not alsa_in_instances[i].poll()==None:
+                    tr.append(i)
+            for i in tr:
+                del alsa_in_instances[i]
 
 
 def listSoundCardsByPersistentName():
@@ -83,7 +104,7 @@ def listSoundCardsByPersistentName():
         cards[i[0]] = n
 
 
-    x = subprocess.check_output(['aplay','-l']).decode("utf8")
+    x = subprocess.check_output(['aplay','-l'],stderr=subprocess.DEVNULL).decode("utf8")
 
 
     #Groups are cardnumber, cardname, subdevice, longname
@@ -95,8 +116,8 @@ def listSoundCardsByPersistentName():
         generatedName = cards[i[0]]+"."+i[2]
 
         h = memorableHash(cards[i[0]]+":"+i[2])
-        n = i[3].replace(" ","").replace("\n","").replace("*","").replace("(","").replace(")","").replace("-","").replace(":",".")
-        z =n+'-'+h
+        n = i[3].replace(" ","").replace("\n","").replace("*","").replace("(","").replace(")","").replace("-","").replace(":",".").replace("Audio","")
+        z =n+'x'+h
         z=z[:29]
         try:
             d[z]  = ("hw:"+i[0]+","+i[2], cards[i[0]], (int(i[0]), int(i[2])))
@@ -107,7 +128,7 @@ def listSoundCardsByPersistentName():
     #Now do the same for the inputs
     inputs={}
 
-    x = subprocess.check_output(['aplay','-l']).decode("utf8")
+    x = subprocess.check_output(['arecord','-l'],stderr=subprocess.DEVNULL).decode("utf8")
     #Groups are cardnumber, cardname, subdevice, longname
     sd = re.findall(r"card (\d+): (\w*)\s\[.*?\], device (\d*): (.*?)\s+\[.*?]",x)
     for i in sd:
@@ -115,13 +136,13 @@ def listSoundCardsByPersistentName():
         generatedName = cards[i[0]]+"."+i[2]
 
         h = memorableHash(cards[i[0]]+":"+i[2])
-        n = i[3].replace(" ","").replace("\n","").replace("*","").replace("(","").replace(")","").replace("-","")
-        z =n+'-'+h
+        n = i[3].replace(" ","").replace("\n","").replace("*","").replace("(","").replace(")","").replace("-","").replace("Audio","")
+        z =n+'x'+h
         z=z[:29]
         try:
-            d[z]  = ("hw:"+i[0]+","+i[2], cards[i[0]], (int(i[0]), int(i[2])))
+            inputs[z]  = ("hw:"+i[0]+","+i[2], cards[i[0]], (int(i[0]), int(i[2])))
         except KeyError:
-            d[z] = ("hw:"+i[0]+","+i[2], cards[i[0]], int(i[0]), int(i[2]))
+            inputs[z] = ("hw:"+i[0]+","+i[2], cards[i[0]], int(i[0]), int(i[2]))
 
 
 
@@ -155,6 +176,4 @@ def memorableHash(x, num=3, separator=""):
 
 
 inp,op = listSoundCardsByPersistentName()
-
-
 daemon()
