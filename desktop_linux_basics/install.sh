@@ -26,7 +26,7 @@ apt-get install fish zsh
 
 
 #I'm not even going to pretend this script is for everyone..
-apt-get install wine krita ardour audacity wxmaxima clementine fbreader
+apt-get install wine krita ardour audacity wxmaxima clementine fbreader git
 
 #Yep really. I'm puting chrome.
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
@@ -40,4 +40,24 @@ then
   apt-get install chrony;
 fi
 
-
+# Given a filename, a regex pattern to match and a string:
+# If found, no change, else append file with string on new line.
+append1() {
+	grep $2 $1 >/dev/null
+	if [ $? -ne 0 ]; then
+		# Not found; append on new line (silently)
+		echo $3 | sudo tee -a $1 >/dev/null
+	fi
+}
+#Install the drivers for a a common Realtek USB WiFi chipset that isn't mainline
+# https://ubuntuforums.org/showthread.php?t=2410077
+apt-get install git build-essential
+git clone git://github.com/ulli-kroll/rtl8188fu
+cd rtl8188fu
+make
+make installfw
+modprobe cfg80211
+insmod rtl8188fu.ko
+cp rtl8188fu.ko /lib/modules/`uname -r`/kernel/drivers/usb/usbip/
+append1 /etc/modules rtl8188fu rtl8188fu
+depmod
