@@ -26,7 +26,11 @@ apt-get install fish zsh
 
 
 #I'm not even going to pretend this script is for everyone..
-apt-get install wine krita ardour audacity wxmaxima clementine fbreader git
+apt-get install wine winetricks krita ardour audacity wxmaxima clementine fbreader gnome-disk-utility
+apt-get install exfat-utils convertall
+
+#As your user you'll need to run
+#winetricks allfonts
 
 #Yep really. I'm puting chrome.
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
